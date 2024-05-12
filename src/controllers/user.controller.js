@@ -3,13 +3,7 @@ const {user} = require('../models');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-    const {firstname, lastname, username, email, password, roles} = req.body;
-
-    if (!username || !password || !email) {
-        return res.status(400).send({
-            message: 'Username, password, and email are required'
-        })
-    }
+    const {firstname, lastname, username, email, password} = req.body;
 
     const hashedPwd = bcrypt.hashSync(password, 8);
     // console.log(password, hashPassword);
@@ -19,7 +13,7 @@ const register = async (req, res) => {
         username: username,
         email: email,
         password:  hashedPwd,
-        roles: roles
+        // roles: roles
     })
     return res.status(201).send({
         message: 'User created successfully'
