@@ -1,4 +1,6 @@
 const validator = require('validator');
+const {user} = require('../models');
+const bcrypt = require('bcrypt');
 
 const registerValidator = async (req, res, next) => {
     const {firstname, username, email, password} = req.body;
@@ -38,4 +40,36 @@ const registerValidator = async (req, res, next) => {
     next();
 };
 
-module.exports = {registerValidator}
+const loginValidator = async (req, res, next) => {
+    const {username, password} = req.body;
+
+    const getUser = await user.findOne(
+        {
+            where: {
+                username: username
+            }
+        }
+    );
+
+    if (!getUser) {
+        return res.status(400).send({
+            message: 'Error, user not found!'
+        })
+    }
+
+    const dataUser = getUser.dataValues
+
+    const comparedPwd = bcrypt.compareSync(password, dataUser.password);
+    if (!comparedPwd) {
+        return res.status(400).send(
+            {
+                message: 'Incorrect Password!'
+            }
+        );
+    }
+
+    req.userInfo = dataUser
+    next();
+};
+
+module.exports = {registerValidator, loginValidator}

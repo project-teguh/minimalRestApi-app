@@ -32,41 +32,43 @@ const allUsers = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const { username, password} = req.body;
     
-    
-    const getUser = await user.findOne({
-        where: {
-            username: username
-        }
-    })
-    
-    
-    if (!getUser) {
-        return res.status(400).send(
-            {
-                message: 'Incorrect Username!'
-            }
-        );
-    } 
 
-    const comparedPwd = bcrypt.compareSync(password, getUser.dataValues.password);
-    if (!comparedPwd) {
-        return res.status(400).send(
-            {
-                message: 'Incorrect Password!'
-            }
-        );
-    }
+    //yg dikoment sudah dipindah ke validator.js
+    // const { username, password} = req.body;
+    
+    // const getUser = await user.findOne({
+    //     where: {
+    //         username: username
+    //     }
+    // })
+    
+    
+    // if (!getUser) {
+    //     return res.status(400).send(
+    //         {
+    //             message: 'Incorrect Username!'
+    //         }
+    //     );
+    // } 
+
+    // const comparedPwd = bcrypt.compareSync(password, getUser.dataValues.password);
+    // if (!comparedPwd) {
+    //     return res.status(400).send(
+    //         {
+    //             message: 'Incorrect Password!'
+    //         }
+    //     );
+    // }
     // console.log('Login data (getUser) :>> ', getUser.dataValues);
     // console.log('Login data (req.body) :>> ', req.body);
-
+    const data = req.userInfo
     const token = jwt.sign({
-        id: getUser.dataValues.id,
-        username: getUser.dataValues.username
-    }, process.env.JWT_SECRET, {expiresIn: 30}
+        id: data.id,
+        username: data.username
+    }, process.env.JWT_SECRET, {expiresIn: 3600}
 );
-console.log(token);
+// console.log(token);
 
     return res.status(200).send(
         {
@@ -76,4 +78,21 @@ console.log(token);
     )        
 }
 
-module.exports = {register, login, allUsers}
+const addProfile = async (req, res, next) => {
+    const userData = req.user;
+
+    const file = req.file;
+
+    const updateField = await user.update({
+        picture: file.path
+    }, 
+    {where: {
+        id: userData.id
+    }});
+
+    return res.status(201).send({
+        message: 'Profile picture uploaded successfully'
+    })
+}
+
+module.exports = {register, login, allUsers, addProfile}
