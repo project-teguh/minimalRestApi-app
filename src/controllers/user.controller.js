@@ -20,17 +20,6 @@ const register = async (req, res) => {
     })
 }
 
-const allUsers = async (req, res) => {
-    const data = await user.findAll();
-
-    return res.status(200).send(
-        {
-            message: 'All Users data retrieved succesfully',
-            data: data
-        }
-    )
-}
-
 const login = async (req, res) => {
     
 
@@ -78,7 +67,20 @@ const login = async (req, res) => {
     )        
 }
 
-const addProfile = async (req, res, next) => {
+//crud
+
+const allUsers = async (req, res) => {
+    const data = await user.findAll();
+
+    return res.status(200).send(
+        {
+            message: 'All Users data retrieved succesfully',
+            data: data
+        }
+    )
+}
+
+const addImgProfile = async (req, res, next) => {
     const userData = req.user;
 
     const file = req.file;
@@ -95,4 +97,67 @@ const addProfile = async (req, res, next) => {
     })
 }
 
-module.exports = {register, login, allUsers, addProfile}
+const myprofile =async (req, res) => {
+    try {
+        let data = await user.findOne(
+            {
+                where: {id: req.user.id}
+            }
+        )
+
+        return res.status(200).send({
+            message: 'Get user data successfully',
+            data: data.dataValues
+        })
+    } catch (error) {
+        res.status(500).send({
+            code:500,
+            status: false,
+            message: error.message,
+            data: null
+        })
+    }
+}
+
+const updateUser = async (req, res) => {
+    try {
+        const {firstname, lastname, username, email} = req.body;
+        let data = await user.update(
+            {
+                firstname: firstname,
+                lastname: lastname,
+                username: username,
+                email: email
+            },
+            {
+                where: {
+                    id: req.user.id
+                }
+            }
+        )
+
+        let getId = await user.findOne(
+            {
+                where: {
+                    id: req.user.id
+                }
+            }
+        )
+
+        return res.status(201).send({
+            message: 'User data updated successfully',
+            data: getId.dataValues
+        });
+    } catch (error) {
+        res.status(500).send(
+            {
+                message : error.message,
+                code    : 500,
+                status  : false,
+                data    : null
+            }
+        )
+    }
+};
+
+module.exports = {register, login, allUsers, addImgProfile, myprofile, updateUser};

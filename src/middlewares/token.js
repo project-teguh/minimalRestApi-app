@@ -1,7 +1,8 @@
+require ('dotenv').config();    
 const jwt = require('jsonwebtoken');
 const {user} = require('../models');
 
-const verify = async (req, res, next) => { 
+const verifyToken = async (req, res, next) => { 
     //param next: pada express js untuk meneruskan/melanjutkan proses dari controller/middleware ke ../.. yg lainya 
     try {
         const token = req.headers["authorization"];
@@ -36,4 +37,4 @@ const verify = async (req, res, next) => {
     }
 }
 
-module.exports = {verify};
+module.exports = {verifyToken};
